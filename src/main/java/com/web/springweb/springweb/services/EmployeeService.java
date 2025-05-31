@@ -10,6 +10,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class EmployeeService {
     }
 
     public Optional<EmployeeDTO> getEmployeeByID(Long employeeID) {
+        isExistsByEmployeeID(employeeID);
         Optional<EmployeeEntity> employeeEntity= employeeRepository.findById(employeeID);
         return employeeEntity.map((employeeEntity1 -> mapper.map(employeeEntity1, EmployeeDTO.class)));
     }
@@ -40,22 +42,22 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployeeByID(EmployeeDTO employee, Long employeeID) {
-
+        isExistsByEmployeeID(employeeID);
         EmployeeEntity employeeEntity = mapper.map(employee, EmployeeEntity.class);
         employeeEntity.setId(employeeID);
         return mapper.map(employeeRepository.save(employeeEntity), EmployeeDTO.class);
     }
 
-    public boolean isExistsByEmployeeID(long employeeID){
+    public void isExistsByEmployeeID(long employeeID){
 
-        return !employeeRepository.existsById(employeeID);
+        if(!employeeRepository.existsById(employeeID)){
+            throw new NoSuchElementException("Employee was not found by ID  - " + employeeID);
+        }
     }
 
     public boolean deleteEmployee(long employeeID) {
 
-        if(isExistsByEmployeeID(employeeID)){
-            return false;
-        }
+        isExistsByEmployeeID(employeeID);
         try {
             employeeRepository.deleteById(employeeID);
         }
@@ -67,9 +69,7 @@ public class EmployeeService {
 
     public EmployeeDTO updatePartialEmployeeByID(Long employeeID, Map<String, Object> employeeUpdates) {
 
-        if(isExistsByEmployeeID(employeeID)){
-            return null;
-        }
+        isExistsByEmployeeID(employeeID);
 
         EmployeeEntity employeeEntity = employeeRepository.findById(employeeID).get();
         employeeUpdates.forEach((field, value) -> {
