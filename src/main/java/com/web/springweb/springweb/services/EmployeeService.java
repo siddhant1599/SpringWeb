@@ -2,6 +2,7 @@ package com.web.springweb.springweb.services;
 
 import com.web.springweb.springweb.dto.EmployeeDTO;
 import com.web.springweb.springweb.entities.EmployeeEntity;
+import com.web.springweb.springweb.exception.ResourceNotFoundException;
 import com.web.springweb.springweb.repositories.EmployeeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class EmployeeService {
     public void isExistsByEmployeeID(long employeeID){
 
         if(!employeeRepository.existsById(employeeID)){
-            throw new NoSuchElementException("Employee was not found by ID  - " + employeeID);
+            throw new ResourceNotFoundException("Resource ex : Employee was not found by ID  - " + employeeID);
         }
     }
 
